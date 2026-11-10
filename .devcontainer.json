@@ -1,0 +1,19 @@
+{
+    "name": "causal-domain-shear",
+    "build": {
+        "context": ".",
+        "dockerfile": "docker/Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python"
+            }
+        }
+    },
+    "onCreateCommand": "pip-compile --upgrade src/requirements.in && pip-compile --upgrade src/dev-requirements.in",
+    "postCreateCommand": "pip install -r src/dev-requirements.txt",
+    "runArgs": [
+        "--rm"
+    ]
+}

@@ -1,0 +1,7 @@
+cvxpy
+numpy
+pandas
+pyarrow
+scikit-learn
+scipy
+yfinance
