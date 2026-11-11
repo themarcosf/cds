@@ -144,24 +144,27 @@ def backtest_risk_engine(
         weights, ensemble = engine.ensemble(sigma_hat, weights)
         sigma_hat["ensemble"] = ensemble
 
-        sigma_hat["cds"] = CausalDomainShear(ensemble, X_test).optimize()
+        # parallelize
+        for method, sigma in list(sigma_hat.items()):
+            cds = f"{method}_cds"
+            sigma_hat[cds] = CausalDomainShear(sigma, X_test).optimize()
 
         for method, sigma in sigma_hat.items():
-            if i_train < cutoff:
-                evaluation = evaluate(sigma, X_test)
-                test_results.append(dict(
-                    train_start=X_train.index[0],
-                    train_end=X_train.index[-1],
-                    test_start=X_test.index[0],
-                    test_end=X_test.index[-1],
-                    method=method,
-                    logdet=evaluation["logdet"],
-                    mahal=evaluation["mahal"],
-                    nll=evaluation["nll"],
-                    mahal_obs=evaluation["mahal_obs"],
-                    nll_obs=evaluation["nll_obs"]
-                ))
-            else:
+            evaluation = evaluate(sigma, X_test)
+            test_results.append(dict(
+                train_start=X_train.index[0],
+                train_end=X_train.index[-1],
+                test_start=X_test.index[0],
+                test_end=X_test.index[-1],
+                method=method,
+                logdet=evaluation["logdet"],
+                mahal=evaluation["mahal"],
+                nll=evaluation["nll"],
+                mahal_obs=evaluation["mahal_obs"],
+                nll_obs=evaluation["nll_obs"]
+            ))
+
+            if i_train > cutoff:
                 evaluation = evaluate(sigma, X_eval)
                 eval_results.append(dict(
                     train_start=X_train.index[0],
