@@ -72,13 +72,6 @@ class CausalDomainShear:
     minimizer is closed-form: with no evidence of causal interference the base
     matrix is returned unchanged.
     """
-    initial_radius: float = 0.5
-    max_radius: float = 2.0
-    min_radius: float = 1e-7
-    max_iterations: int = 200
-    tolerance: float = 1e-8
-    max_line_search: int = 20
-
     def __init__(
         self, 
         sigma: pd.DataFrame,

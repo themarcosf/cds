@@ -27,8 +27,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 tickers = [
-    "AAPL", "GOOGL", "MSFT", "NVDA", "TSLA",
-    "AMZN", "BRK-B", "JPM", "WMT", "XOM",
+    "NVDA",     # AI causal domain candidate - GPU accelerators
+    "AMD",      # AI causal domain candidate - data center processors
+    "ORCL",     # AI causal domain candidate - data center infrastructure
+    "VRT",      # AI causal domain candidate - data center cooling and power management
+    "KO",       # consumer staples
+    "XOM",      # energy
+    "CB",       # financials and insurance 
+    "JNJ",      # healthcare and pharmaceuticals
+    "UNP",      # industrials (railroad)
+    "NEM"       # materials (gold mining)
 ]
 
 estimators = dict(

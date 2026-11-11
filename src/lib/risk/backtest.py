@@ -15,12 +15,13 @@ from collections.abc import Callable
 from lib.risk.cds import CausalDomainShear
 from lib.risk.engine import RiskEngine
 
-
 ################################################################################
 # Setup
 ################################################################################
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+yf.set_tz_cache_location("/tmp/yfinance-cache")
 
 
 ################################################################################
@@ -65,27 +66,38 @@ def get_daily_returns(
     period: str, 
     max_attempts: int = 5
 ) -> pd.DataFrame:
-    for attempt in range(max_attempts):
-        df = yf.download(
-            tickers=tickers,
-            period=period,
-            interval="1d",
-            keepna=True
+    try:
+        for attempt in range(max_attempts):
+            df = yf.download(
+                tickers=tickers,
+                period=period,
+                interval="1d",
+                keepna=True
+            )
+
+            if df is not None and not df.empty:
+                df = df[["Close"]].pct_change().iloc[1:]
+
+                if isinstance(df.columns, pd.MultiIndex):
+                    df = df.droplevel(0, axis=1)
+
+                if not df.isna().any().any():
+                    return df
+
+            if attempt < max_attempts - 1:
+                time.sleep(2**(attempt + 1))
+
+        raise RuntimeError(
+            "It looks like Yahoo Finance is out or updating their information."
+            "Try again later and if the problem persists, please open an Issue"
+            "in Github and we will look into it."
         )
-
-        if df is not None and not df.empty:
-            df = df[["Close"]].pct_change().iloc[1:]
-
-            if isinstance(df.columns, pd.MultiIndex):
-                df = df.droplevel(0, axis=1)
-
-            if not df.isna().any().any():
-                return df
-
-        if attempt < max_attempts - 1:
-            time.sleep(2**(attempt + 1))
-
-    raise RuntimeError
+    except Exception as e:
+        raise RuntimeError(
+            "Unexpected failure downloading returns data. Please rebuild the"
+            "devcontainer and try again. If the problem persists, please open"
+            "an Issue in Github and we will look into it."
+        )
 
 
 ################################################################################
